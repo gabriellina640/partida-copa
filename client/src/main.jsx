@@ -159,8 +159,10 @@ function PublicAdminScreen({ state, connected }) {
     });
   }
 
+  const spectatorMode = !drawerOpen;
+
   return (
-    <main className={`page public-page ${adminUnlocked && drawerOpen ? 'drawer-open' : ''}`}>
+    <main className={`page public-page ${adminUnlocked && drawerOpen ? 'drawer-open' : ''} ${spectatorMode ? 'spectator-mode' : ''}`}>
       {adminUnlocked && drawerOpen && (
         <AdminDrawer
           state={state}
@@ -197,10 +199,9 @@ function PublicAdminScreen({ state, connected }) {
       {passwordOpen && !adminUnlocked && <AdminPasswordDialog onUnlock={unlockAdmin} onClose={() => setPasswordOpen(false)} />}
 
       <section className="broadcast-shell">
-        <BroadcastHeader state={state} connected={connected} />
+        {!spectatorMode && <BroadcastHeader state={state} connected={connected} />}
         <ScoreField state={state} />
-        <PublicQuestion state={state} />
-        <MatchTimeline state={state} />
+        {!spectatorMode && <MatchTimeline state={state} />}
       </section>
     </main>
   );
@@ -401,17 +402,19 @@ function ScoreField({ state }) {
   const isGoal = ['goal', 'rebound-goal'].includes(state.lastEvent?.type);
   const isDefense = ['defense', 'double-defense', 'timeout-defense', 'timeout-double-defense'].includes(state.lastEvent?.type);
   const ballSide = state.activeTeam === 'A' ? 'ball-left' : state.activeTeam === 'B' ? 'ball-right' : 'ball-center';
-  const eventType = state.lastEvent?.type || 'setup';
 
   return (
     <section className="stadium-board">
-      <TeamScore team={state.teams.A} score={state.score.A} side="A" />
+      <div className="question-side">
+        <PublicQuestion state={state} compact />
+      </div>
 
       <div className="field-card">
         <div className="field-topline">
           <div className="play-chip">
             <span>Jogada</span>
             <strong>{state.lastEvent?.title || 'Aguardando'}</strong>
+            <small>{state.lastEvent?.message || 'Configure o aquecimento para comecar.'}</small>
           </div>
           <TimerBadge state={state} />
           <div className="possession-chip">
@@ -419,22 +422,17 @@ function ScoreField({ state }) {
             <strong>{possessionText(state)}</strong>
           </div>
         </div>
-        <div className="field">
-          <div className="goal left-goal">GOL</div>
-          <div className="center-circle"></div>
-          <div className={`ball ${ballSide} ${isGoal ? 'ball-goal' : ''} ${isDefense ? 'ball-defense' : ''}`}>⚽</div>
-          <div className="goal right-goal">GOL</div>
-        </div>
-        <div className={`event-panel event-${eventTone(eventType)}`}>
-          <div className="event-icon">{eventIcon(eventType)}</div>
-          <div>
-            <p>{phaseLabel(state)}</p>
-            <h2>{state.lastEvent?.message || 'Configure o aquecimento para comecar.'}</h2>
+        <div className="match-stage">
+          <TeamScore team={state.teams.A} score={state.score.A} side="A" />
+          <div className="field">
+            <div className="goal left-goal">GOL</div>
+            <div className="center-circle"></div>
+            <div className={`ball ${ballSide} ${isGoal ? 'ball-goal' : ''} ${isDefense ? 'ball-defense' : ''}`}>⚽</div>
+            <div className="goal right-goal">GOL</div>
           </div>
+          <TeamScore team={state.teams.B} score={state.score.B} side="B" />
         </div>
       </div>
-
-      <TeamScore team={state.teams.B} score={state.score.B} side="B" />
     </section>
   );
 }
@@ -462,15 +460,17 @@ function TeamScore({ team, score, side }) {
   );
 }
 
-function PublicQuestion({ state }) {
+function PublicQuestion({ state, compact = false }) {
   const question = state.currentQuestion;
   const selected = state.pendingAnswer?.optionIndex ?? state.lastEvent?.selectedOption;
   const correct = state.lastEvent?.correctOption;
   const showCorrect = Number.isInteger(correct);
+  const className = `question-panel ${compact ? 'field-question-panel' : ''} ${state.phase === 'revealing' ? 'is-revealing' : ''}`;
 
   if (state.status === 'setup') {
     return (
-      <section className="question-panel setup-panel">
+      <section className={`${className} setup-panel`}>
+        {compact && <LiveEventLine state={state} />}
         <p className="eyebrow">Aquecimento</p>
         <h2>Configure as equipes e compartilhe os codigos</h2>
         <p>Este aquecimento prepara as equipes para a dinamica da Copa: ritmo, tecnica e validacao em campo.</p>
@@ -480,7 +480,8 @@ function PublicQuestion({ state }) {
 
   if (state.status === 'paused') {
     return (
-      <section className="question-panel paused-panel">
+      <section className={`${className} paused-panel`}>
+        {compact && <LiveEventLine state={state} />}
         <p className="eyebrow">Partida pausada</p>
         <h2>{state.recovery ? 'Retomada aguardando operador' : 'Jogo pausado'}</h2>
         <p>Confira o painel lateral antes de retomar.</p>
@@ -490,7 +491,8 @@ function PublicQuestion({ state }) {
 
   if (!question) {
     return (
-      <section className="question-panel setup-panel">
+      <section className={`${className} setup-panel`}>
+        {compact && <LiveEventLine state={state} />}
         <p className="eyebrow">{state.status === 'finished' ? 'Fim de jogo' : 'Intervalo'}</p>
         <h2>{state.lastEvent?.title || 'Aguardando proxima jogada'}</h2>
         <p>{state.lastEvent?.message}</p>
@@ -499,7 +501,8 @@ function PublicQuestion({ state }) {
   }
 
   return (
-    <section className={`question-panel ${state.phase === 'revealing' ? 'is-revealing' : ''}`}>
+    <section className={className}>
+      {compact && <LiveEventLine state={state} />}
       <div className="question-topline">
         <span>{question.category}</span>
         <strong>{state.phase === 'rebound' ? 'Contra-ataque' : state.phase === 'revealing' ? 'Resposta confirmada' : 'Ataque'}</strong>
@@ -525,6 +528,16 @@ function PublicQuestion({ state }) {
       {state.phase === 'revealing' && <div className="reveal-strip">Revelacao em {formatTime(state.timeLeft)}</div>}
       {showCorrect && <div className="explanation-strip">{state.lastEvent?.explanation}</div>}
     </section>
+  );
+}
+
+function LiveEventLine({ state }) {
+  return (
+    <div className={`live-event-line event-${eventTone(state.lastEvent?.type || 'setup')}`}>
+      <span>{eventIcon(state.lastEvent?.type)}</span>
+      <strong>{state.lastEvent?.title || phaseLabel(state)}</strong>
+      <p>{state.lastEvent?.message || 'Aguardando inicio da partida.'}</p>
+    </div>
   );
 }
 
@@ -787,7 +800,7 @@ function clockHelp(state) {
   if (state.status === 'setup') return 'Aquecimento';
   if (state.status === 'paused') return 'Pausado';
   if (state.phase === 'attack') return 'Ataque 45s';
-  if (state.phase === 'rebound') return 'Contra-ataque 15s';
+  if (state.phase === 'rebound') return 'Contra-ataque 20s';
   if (state.phase === 'revealing') return 'Decisao em campo';
   if (state.phase === 'between') return 'Proxima rodada';
   return 'Encerrado';

@@ -1,282 +1,282 @@
 export const gameQuestions = [
   {
     round: 1,
-    category: 'Chute a Gol',
+    category: 'Restricao',
     attack: {
-      title: 'Melhor prompt para resumo institucional',
-      statement: 'Qual prompt tem melhor estrutura para resumir uma reunião institucional?',
+      title: 'Reducao de risco de invencao',
+      statement: 'Qual instrucao e mais adequada para reduzir risco de invencao de dados em analise institucional?',
       options: [
-        'Resuma a reunião.',
-        'Faça um resumo bonito e bem completo.',
-        'Atue como assessor institucional e produza um resumo executivo com decisões, responsáveis, prazos, pendências e próximos passos, sem inventar informações ausentes.',
-        'Leia tudo e me diga o que é importante.'
-      ],
-      correctIndex: 2,
-      explanation: 'O melhor prompt define papel, tarefa, formato, critérios e restrição contra invenção.'
-    },
-    rebound: {
-      title: 'Prompt objetivo para relatório',
-      statement: 'Qual opção orienta melhor a IA a produzir um relatório útil?',
-      options: [
-        'Faça um relatório.',
-        'Atue como analista de planejamento e gere um relatório em tópicos com contexto, achados, riscos, recomendações e próximos passos.',
-        'Escreva bastante sobre esse assunto.',
-        'Melhore o texto de qualquer jeito.'
+        'Use as informacoes disponiveis e complemente o que parecer logico.',
+        'Quando faltar dado relevante, registre a lacuna e nao formule conclusao definitiva.',
+        'Utilize conhecimento geral para tornar a analise mais completa.',
+        'Evite mencionar duvidas para deixar o texto mais objetivo.'
       ],
       correctIndex: 1,
-      explanation: 'A resposta correta deixa claro o papel da IA, a estrutura esperada e o objetivo do relatório.'
+      explanation: 'A melhor instrucao exige registrar lacunas e evita conclusoes definitivas sem base nos dados.'
+    },
+    rebound: {
+      title: 'Risco de alucinacao',
+      statement: 'Qual comando representa maior risco de alucinacao?',
+      options: [
+        'Indique lacunas.',
+        'Nao invente dados.',
+        'Presuma as informacoes ausentes.',
+        'Use apenas os documentos fornecidos.'
+      ],
+      correctIndex: 2,
+      explanation: 'Presumir informacoes ausentes incentiva a IA a preencher lacunas sem evidencia.'
     }
   },
   {
     round: 2,
-    category: 'VAR do Sigilo',
+    category: 'Formato de saida',
     attack: {
-      title: 'Risco em prompt com dados sensíveis',
-      statement: 'O prompt diz: “Analise o processo nº 0001234-56.2026, envolvendo Maria Silva, vítima menor de idade, e diga a estratégia do promotor.” Qual é o maior problema?',
+      title: 'Comparacao institucional',
+      statement: 'A tarefa e comparar uma recomendacao do MPAC com a resposta enviada por uma Secretaria Municipal. Qual formato tende a ser mais util?',
       options: [
-        'O prompt está curto demais.',
-        'O prompt usa linguagem informal.',
-        'O prompt expõe dados pessoais/sensíveis e estratégia institucional.',
-        'O prompt não pede resposta em formato de tabela.'
+        'Texto corrido com opiniao geral sobre a resposta.',
+        'Resumo informal com os pontos que parecerem mais importantes.',
+        'Tabela com recomendacao, resposta apresentada, evidencia de cumprimento, lacuna e providencia sugerida.',
+        'Lista livre de comentarios, sem estrutura fixa.'
       ],
       correctIndex: 2,
-      explanation: 'O problema central é a exposição de dados identificáveis, sensíveis e de possível estratégia institucional.'
+      explanation: 'A tabela torna a comparacao verificavel, organizada e acionavel para uso institucional.'
     },
     rebound: {
-      title: 'Anonimização correta',
-      statement: 'Qual versão é mais segura para uso com IA?',
+      title: 'Funcao do formato',
+      statement: 'O formato de saida define:',
       options: [
-        'Analise o caso de João, CPF 000.000.000-00, e sugira providências.',
-        'Analise o caso hipotético abaixo, com dados anonimizados, e indique pontos de atenção sem identificar partes ou inventar fatos.',
-        'Use o número do processo para buscar os detalhes e resumir tudo.',
-        'Com base no segredo de justiça, diga a melhor estratégia.'
+        'Como a resposta deve ser organizada.',
+        'Qual ferramenta sera usada.',
+        'Quem vencera o desafio.',
+        'Qual dado deve ser inventado.'
       ],
-      correctIndex: 1,
-      explanation: 'A versão segura remove identificação e impõe limites claros à resposta.'
+      correctIndex: 0,
+      explanation: 'O formato de saida orienta a organizacao da resposta.'
     }
   },
   {
     round: 3,
-    category: 'Escalação do Prompt',
+    category: 'Pergunta tecnica',
     attack: {
-      title: 'Ordem mais completa',
-      statement: 'Qual ordem faz mais sentido para montar um prompt forte?',
+      title: 'Texto em numeros',
+      statement: 'Quando uma palavra vira numeros dentro da IA, isso e chamado de:',
       options: [
-        'Tarefa → Persona → Formato → Contexto.',
-        'Persona → Contexto → Tarefa → Formato → Restrições → Critérios.',
-        'Restrições → Formato → Persona → Tarefa.',
-        'Formato → Tarefa → Pedido genérico → Resultado.'
+        'Copia literal da frase original',
+        'Traducao visual da palavra escrita',
+        'Representacao vetorial do texto',
+        'Conversao magica para resposta'
       ],
-      correctIndex: 1,
-      explanation: 'Essa ordem organiza papel, cenário, objetivo, saída esperada, limites e qualidade.'
+      correctIndex: 2,
+      explanation: 'Modelos representam textos numericamente, frequentemente como vetores usados para capturar relacoes de significado.'
     },
     rebound: {
-      title: 'Peça que falta na escalação',
-      statement: 'Prompt: “Atue como assessor jurídico. Analise o texto abaixo e apresente pontos relevantes.” O que falta mais claramente?',
+      title: 'Utilidade dos vetores',
+      statement: 'Na IA generativa, representar palavras ou trechos de texto como vetores ajuda principalmente a:',
       options: [
-        'Mais emojis.',
-        'Formato de saída e critérios de qualidade.',
-        'Pedir uma resposta maior.',
-        'Remover o contexto.'
+        'Medir semelhancas de significado entre textos',
+        'Corrigir automaticamente erros de digitacao',
+        'Transformar qualquer texto em imagem',
+        'Impedir que a IA erre respostas'
       ],
-      correctIndex: 1,
-      explanation: 'Sem formato e critérios, a resposta tende a ficar genérica e difícil de usar.'
+      correctIndex: 0,
+      explanation: 'Representacoes vetoriais ajudam a comparar proximidade semantica entre textos.'
     }
   },
   {
     round: 4,
-    category: 'Drible do Refinamento',
+    category: 'Qualidade da resposta',
     attack: {
-      title: 'Corrigindo resposta ruim',
-      statement: 'A IA respondeu: “A reunião foi importante e teve vários encaminhamentos.” Qual comando refina melhor?',
+      title: 'Resposta convincente com dado inventado',
+      statement: 'A resposta da IA esta bem escrita, organizada e convincente, mas afirma que houve descumprimento de prazo sem que essa informacao conste nos dados fornecidos. Qual e o principal problema?',
       options: [
-        'Melhore isso.',
-        'Faça mais bonito.',
-        'Reescreva em tabela com decisões, responsáveis, prazos, pendências e riscos, sem inventar dados ausentes.',
-        'Explique de novo com mais palavras.'
+        'Falta de criatividade.',
+        'Excesso de formalidade.',
+        'Extrapolacao ou alucinacao a partir dos dados.',
+        'Uso inadequado de topicos.'
       ],
       correctIndex: 2,
-      explanation: 'O comando de refinamento dá estrutura objetiva e limite contra alucinação.'
+      explanation: 'Uma resposta bem escrita ainda e insegura se extrapola fatos nao presentes nos dados fornecidos.'
     },
     rebound: {
-      title: 'Refinamento com controle de tamanho',
-      statement: 'A resposta da IA ficou longa demais. Qual prompt de ajuste é melhor?',
+      title: 'Resposta confiavel',
+      statement: 'Uma resposta confiavel deve:',
       options: [
-        'Resuma bastante.',
-        'Deixe menor.',
-        'Transforme a resposta em até 5 tópicos objetivos, preservando decisões, responsáveis e prazos, sem adicionar informações novas.',
-        'Corte qualquer coisa.'
+        'Parecer convincente, ainda que faltem dados.',
+        'Separar fatos fornecidos, lacunas e inferencias possiveis.',
+        'Evitar mencionar limitacoes.',
+        'Apresentar sempre conclusao definitiva.'
       ],
-      correctIndex: 2,
-      explanation: 'A opção correta define limite, preserva elementos essenciais e proíbe novas informações.'
+      correctIndex: 1,
+      explanation: 'Separar fatos, lacunas e inferencias ajuda a revisar e auditar a resposta.'
     }
   },
   {
     round: 5,
-    category: 'Pênalti Relâmpago',
+    category: 'Dados de entrada',
     attack: {
-      title: 'Fundamento de prompt',
-      statement: 'Um bom prompt deve ter principalmente:',
+      title: 'Fragilidade do prompt',
+      statement: 'O prompt diz: "Atue como assessor do MPAC e elabore despacho de continuidade do procedimento, com providencias urgentes e linguagem institucional." Qual e a principal fragilidade do prompt?',
       options: [
-        'Apenas criatividade.',
-        'Contexto, tarefa, formato, restrições e critérios.',
-        'O máximo de texto possível.',
-        'Uma pergunta genérica para a IA decidir tudo.'
+        'Nao foram fornecidos o historico, os fatos ou os documentos que permitam justificar as providencias.',
+        'Nao foi indicado se o despacho deve ter fundamentacao normativa ou apenas encaminhamentos administrativos.',
+        'Nao foi definido o nivel de detalhamento esperado para a linguagem institucional.',
+        'Nao foi informado se a resposta deve priorizar sintese, analise critica ou minuta final.'
       ],
-      correctIndex: 1,
-      explanation: 'Esses elementos ajudam a IA a responder com mais precisão e utilidade.'
+      correctIndex: 0,
+      explanation: 'Todas apontam falhas possiveis, mas a ausencia de dados de entrada impede a elaboracao segura do despacho.'
     },
     rebound: {
-      title: 'Evitar alucinação',
-      statement: 'Qual instrução reduz o risco de a IA inventar informações?',
+      title: 'Procedimento ausente',
+      statement: 'Quando o prompt pede analise "com base no procedimento", mas nao traz o procedimento, a melhor orientacao e:',
       options: [
-        'Seja criativa acima de tudo.',
-        'Complete as lacunas como achar melhor.',
-        'Não invente informações ausentes; quando faltar dado, indique a lacuna.',
-        'Responda como se tivesse certeza.'
+        'Produzir uma analise geral, deixando claro que e apenas ilustrativa.',
+        'Registrar a ausencia dos dados e nao inventar fatos ou providencias.',
+        'Usar conhecimento institucional para presumir o conteudo provavel.',
+        'Criar um modelo padrao de despacho sem mencionar a falta de dados.'
       ],
-      correctIndex: 2,
-      explanation: 'Essa restrição força a IA a declarar lacunas em vez de preencher com suposições.'
+      correctIndex: 1,
+      explanation: 'Sem o procedimento, a IA deve registrar a lacuna e evitar fatos ou providencias inventadas.'
     }
   },
   {
     round: 6,
-    category: 'Chute a Gol',
+    category: 'Pergunta tecnica',
     attack: {
-      title: 'Prompt para plano de ação',
-      statement: 'Qual prompt é melhor para gerar um plano de ação institucional?',
+      title: 'Historico muito extenso',
+      statement: 'Uma equipe quer enviar para a IA um historico muito extenso de um procedimento, com documentos repetidos, mensagens antigas e trechos pouco relevantes. Qual orientacao tecnica e mais adequada antes de montar o prompt?',
       options: [
-        'Faça um plano.',
-        'Crie alguma coisa sobre isso.',
-        'Atue como analista de gestão pública. Com base no contexto abaixo, elabore plano de ação em tabela com ação, responsável, prazo, risco e indicador.',
-        'Me dê ideias aleatórias.'
-      ],
-      correctIndex: 2,
-      explanation: 'A alternativa correta define papel, base, formato e campos práticos para execução.'
-    },
-    rebound: {
-      title: 'Prompt para pauta de reunião',
-      statement: 'Qual prompt gera uma pauta mais útil?',
-      options: [
-        'Faça uma pauta.',
-        'Atue como facilitador institucional e monte pauta com objetivo, temas, tempo estimado, perguntas-guia e encaminhamentos esperados.',
-        'Escreva uma reunião.',
-        'Diga coisas importantes.'
+        'Enviar todo o conteudo possivel, porque quanto maior o prompt, melhor sera necessariamente a resposta.',
+        'Reduzir o texto de entrada ao que for relevante, pois modelos processam o conteudo em tokens e excesso de informacao pode prejudicar foco, custo e precisao.',
+        'Dividir palavras longas manualmente em partes menores, porque isso melhora a interpretacao dos tokens.',
+        'Remover todos os sinais de pontuacao, pois eles nao sao considerados pelos modelos de linguagem.'
       ],
       correctIndex: 1,
-      explanation: 'A opção correta transforma a pauta em ferramenta prática para conduzir a reunião.'
+      explanation: 'Selecionar o que e relevante melhora foco, custo e precisao, ja que modelos processam texto em tokens.'
+    },
+    rebound: {
+      title: 'Tokens',
+      statement: 'Em modelos de linguagem, tokens podem ser:',
+      options: [
+        'Apenas imagens e desenhos',
+        'Apenas frases longas inteiras',
+        'Somente numeros matematicos',
+        'Palavras, pedacos ou sinais'
+      ],
+      correctIndex: 3,
+      explanation: 'Tokens podem representar palavras, partes de palavras, sinais e outros fragmentos do texto.'
     }
   },
   {
     round: 7,
-    category: 'VAR do Sigilo',
+    category: 'Anonimizacao de dados',
     attack: {
-      title: 'Uso de informação interna',
-      statement: 'Qual prática é mais segura ao usar IA em contexto institucional?',
+      title: 'Risco de reidentificacao',
+      statement: 'Em um prompt institucional, a equipe pretende enviar a IA um relato contendo informacoes sobre servidores, unidades administrativas, datas, cargos e fatos especificos, mas decide remover apenas os nomes proprios antes do envio. Sobre essa estrategia, assinale a alternativa mais adequada:',
       options: [
-        'Colar documentos sigilosos completos se a IA for rápida.',
-        'Usar dados anonimizados ou fictícios quando possível e evitar informações sensíveis/sigilosas.',
-        'Informar nomes reais para a IA entender melhor.',
-        'Pedir para a IA guardar o conteúdo.'
+        'A retirada dos nomes proprios elimina integralmente o risco de identificacao, pois a IA nao consegue associar pessoas sem nome completo.',
+        'A anonimizacao de nomes proprios e suficiente quando o uso da IA for interno e a finalidade for institucional.',
+        'A remocao de nomes reduz parte do risco, mas nao garante anonimizacao completa, pois a reidentificacao pode ocorrer pela combinacao de cargo, unidade, data, local, fato especifico ou outros dados indiretos.',
+        'A protecao de dados so e necessaria quando houver CPF, endereco residencial ou dado de saude expressamente indicado no texto.'
       ],
-      correctIndex: 1,
-      explanation: 'Anonimização, minimização de dados e cuidado com sigilo são práticas essenciais.'
+      correctIndex: 2,
+      explanation: 'Remover nomes reduz risco, mas dados indiretos combinados ainda podem permitir reidentificacao.'
     },
     rebound: {
-      title: 'Minimização de dados',
-      statement: 'O que significa minimização de dados no uso de IA?',
+      title: 'Remover apenas o nome',
+      statement: 'Remover apenas o nome de uma pessoa antes de enviar dados a IA:',
       options: [
-        'Enviar tudo para a IA ter contexto máximo.',
-        'Enviar apenas os dados necessários para a tarefa.',
-        'Trocar o nome do arquivo.',
-        'Usar sempre respostas longas.'
+        'Sempre anonimiza o texto.',
+        'Reduz o risco, mas pode nao impedir reidentificacao.',
+        'So e necessario em casos criminais.',
+        'Dispensa outros cuidados com dados pessoais.'
       ],
       correctIndex: 1,
-      explanation: 'Minimizar dados é reduzir o conteúdo enviado ao estritamente necessário.'
+      explanation: 'A remocao do nome e apenas uma medida parcial; outros dados podem identificar a pessoa.'
     }
   },
   {
     round: 8,
-    category: 'Escalação do Prompt',
+    category: 'Cadeia de raciocinio',
     attack: {
-      title: 'Formato de saída',
-      statement: 'Por que pedir formato de saída é importante?',
+      title: 'Auditabilidade da resposta',
+      statement: 'Em uma analise institucional produzida por IA, a equipe quer aumentar a auditabilidade da resposta. Qual instrucao e mais adequada?',
       options: [
-        'Porque deixa o prompt mais longo sem necessidade.',
-        'Porque ajuda a IA a entregar a resposta já organizada para uso.',
-        'Porque impede qualquer erro automaticamente.',
-        'Porque substitui o contexto.'
+        'Mostre todo o seu raciocinio interno, passo a passo, antes de responder.',
+        'Explique longamente como chegou a conclusao, mesmo sem indicar as fontes usadas.',
+        'Apresente a conclusao acompanhada de justificativa objetiva, evidencias utilizadas, lacunas identificadas e criterios aplicados.',
+        'Responda de forma assertiva e evite mencionar duvidas para transmitir seguranca.'
       ],
-      correctIndex: 1,
-      explanation: 'Formato de saída orienta a estrutura da resposta e aumenta sua utilidade prática.'
+      correctIndex: 2,
+      explanation: 'Para auditar, o ideal e pedir conclusao, justificativa objetiva, evidencias, lacunas e criterios aplicados.'
     },
     rebound: {
-      title: 'Critério de qualidade',
-      statement: 'Qual trecho funciona como critério de qualidade?',
+      title: 'Conferindo a resposta',
+      statement: 'Para conferir uma resposta da IA, e melhor pedir:',
       options: [
-        'Responda de qualquer forma.',
-        'Use linguagem objetiva, técnica e adequada para documento institucional.',
-        'Faça grande.',
-        'Não se preocupe com clareza.'
+        'Raciocinio interno completo.',
+        'Justificativa objetiva e evidencias verificaveis.',
+        'Conclusao sem ressalvas.',
+        'Texto mais longo e persuasivo.'
       ],
       correctIndex: 1,
-      explanation: 'Esse trecho orienta o padrão esperado da resposta.'
+      explanation: 'Evidencias verificaveis e justificativa objetiva permitem revisao humana sem depender de raciocinio interno.'
     }
   },
   {
     round: 9,
-    category: 'Drible do Refinamento',
+    category: 'Alucinacao e lacunas',
     attack: {
-      title: 'Resposta sem estrutura',
-      statement: 'A IA respondeu em texto corrido, mas você precisa decidir rápido. Qual refinamento pedir?',
+      title: 'Omissao de lacunas relevantes',
+      statement: 'Em uma analise de procedimento do MPAC, a IA produziu uma resposta bem organizada e nao inventou nenhum fato novo. Porem, deixou de mencionar que nao havia documentos sobre prazo, responsavel, providencias anteriores e confirmacao dos fatos narrados. Sobre essa resposta, assinale a alternativa mais adequada:',
       options: [
-        'Organize em tabela com colunas: ponto crítico, impacto, providência, responsável e prazo.',
-        'Fale mais.',
-        'Dê uma melhorada geral.',
-        'Refaça sem critério.'
+        'A resposta e tecnicamente segura, porque alucinacao so ocorre quando a IA cria fatos inexistentes.',
+        'A resposta e aceitavel, desde que a conclusao pareca coerente com o tema analisado.',
+        'A resposta e problematica, porque omitir lacunas relevantes pode induzir uma conclusao equivocada, mesmo sem inventar fatos novos.',
+        'A resposta e adequada, pois mencionar lacunas pode enfraquecer a utilidade institucional da analise.'
       ],
-      correctIndex: 0,
-      explanation: 'A tabela torna a informação comparável, acionável e fácil de validar.'
+      correctIndex: 2,
+      explanation: 'A confiabilidade depende de evitar fatos inventados e explicitar o que nao esta comprovado, localizado ou concluido.'
     },
     rebound: {
-      title: 'Resposta sem lacunas',
-      statement: 'A IA pareceu inventar detalhes. Qual ajuste pedir?',
+      title: 'Lacunas omitidas',
+      statement: 'Uma resposta da IA que nao inventa fatos, mas omite lacunas importantes, e:',
       options: [
-        'Mantenha os detalhes inventados se parecerem bons.',
-        'Separe o que está no contexto original do que é inferência e marque lacunas não comprovadas.',
-        'Escreva com mais confiança.',
-        'Ignore as lacunas.'
+        'Sempre segura.',
+        'Potencialmente enganosa.',
+        'Melhor para decisao rapida.',
+        'Apenas incompleta, sem risco.'
       ],
       correctIndex: 1,
-      explanation: 'Separar fatos, inferências e lacunas melhora confiabilidade e revisão humana.'
+      explanation: 'Omitir lacunas relevantes pode induzir decisao equivocada mesmo sem criar fatos novos.'
     }
   },
   {
     round: 10,
-    category: 'Pênalti Relâmpago',
+    category: 'Exemplos no prompt',
     attack: {
-      title: 'Prompt campeão',
-      statement: 'Qual característica mais diferencia um prompt campeão?',
+      title: 'Uso de exemplos',
+      statement: 'Em um prompt institucional complexo, a equipe decide incluir dois exemplos de respostas anteriores para orientar a IA sobre o padrao esperado. Sobre o uso dessa tecnica, assinale a alternativa mais adequada:',
       options: [
-        'Ser genérico para servir para qualquer coisa.',
-        'Ter objetivo claro, contexto suficiente, saída definida, segurança e utilidade prática.',
-        'Usar palavras difíceis.',
-        'Pedir para a IA decidir todos os critérios.'
+        'Exemplos sempre aumentam a precisao da resposta, independentemente de serem semelhantes ou nao ao novo caso.',
+        'Exemplos podem ajudar a padronizar formato, linguagem e nivel de detalhamento, mas devem ser compativeis com a nova tarefa para nao induzir categorias, raciocinios ou conclusoes inadequadas.',
+        'Exemplos devem substituir as instrucoes do prompt, pois a IA aprende melhor copiando modelos do que seguindo comandos objetivos.',
+        'Exemplos sao uteis apenas para tarefas criativas, nao sendo recomendados em analises institucionais, juridicas ou administrativas.'
       ],
       correctIndex: 1,
-      explanation: 'Um prompt campeão reduz ambiguidade e entrega resultado aplicável com segurança.'
+      explanation: 'Exemplos ajudam a orientar padrao, linguagem e detalhamento, mas precisam ser compativeis com a tarefa atual.'
     },
     rebound: {
-      title: 'Último chute',
-      statement: 'Qual opção melhor representa uma boa restrição?',
+      title: 'Cuidado com exemplos',
+      statement: 'Ao incluir exemplos em um prompt, o principal cuidado e:',
       options: [
-        'Não invente fatos; indique dúvidas e lacunas quando o contexto não for suficiente.',
-        'Complete tudo mesmo sem dados.',
-        'Responda sem considerar o contexto.',
-        'Faça o que quiser.'
+        'Usar exemplos compativeis com a tarefa atual.',
+        'Colocar o maior numero possivel de exemplos.',
+        'Retirar todas as restricoes do prompt.',
+        'Usar exemplos mesmo sem contexto.'
       ],
       correctIndex: 0,
-      explanation: 'A restrição protege a qualidade e evita resposta falsa ou exagerada.'
+      explanation: 'Exemplos incompativeis podem induzir formato, categorias ou conclusoes inadequadas.'
     }
   }
 ];

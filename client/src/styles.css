@@ -164,6 +164,50 @@ label {
   gap: 18px;
 }
 
+.public-page.spectator-mode {
+  padding: 14px;
+}
+
+.spectator-mode .broadcast-shell {
+  min-height: calc(100vh - 28px);
+  align-content: center;
+  gap: 0;
+}
+
+.spectator-mode .stadium-board {
+  grid-template-columns: minmax(300px, 0.68fr) minmax(0, 1.9fr);
+  gap: 12px;
+}
+
+.spectator-mode .field-card {
+  padding: 12px;
+  gap: 10px;
+}
+
+.spectator-mode .field {
+  min-height: min(54vh, 560px);
+}
+
+.spectator-mode .score-tower {
+  min-height: 0;
+}
+
+.spectator-mode .score-tower strong {
+  font-size: clamp(3rem, 5vw, 6rem);
+}
+
+.spectator-mode .drawer-toggle {
+  min-height: 32px;
+  padding: 0 10px;
+  opacity: 0.42;
+  background: rgba(255, 216, 74, 0.78);
+}
+
+.spectator-mode .drawer-toggle:hover,
+.spectator-mode .drawer-toggle:focus-visible {
+  opacity: 1;
+}
+
 .admin-drawer {
   position: sticky;
   top: 24px;
@@ -338,14 +382,14 @@ label {
 
 .stadium-board {
   display: grid;
-  grid-template-columns: minmax(150px, 0.42fr) minmax(0, 1.8fr) minmax(150px, 0.42fr);
+  grid-template-columns: minmax(300px, 0.72fr) minmax(0, 1.72fr);
   gap: 18px;
   align-items: stretch;
 }
 
 .score-tower {
-  min-height: 330px;
-  padding: 18px;
+  min-height: 100%;
+  padding: 14px;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -363,7 +407,7 @@ label {
 }
 
 .score-tower strong {
-  font-size: clamp(4.2rem, 10vw, 9rem);
+  font-size: clamp(3.2rem, 6vw, 6.6rem);
   line-height: 1;
 }
 
@@ -420,6 +464,16 @@ label {
   align-content: center;
   gap: 5px;
   padding: 14px;
+}
+
+.play-chip small {
+  color: rgba(210, 238, 255, 0.68);
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .play-chip span,
@@ -519,7 +573,8 @@ label {
 
 .field {
   position: relative;
-  height: clamp(250px, 38vw, 430px);
+  min-height: clamp(300px, 36vw, 520px);
+  height: 100%;
   border: 4px solid rgba(255, 255, 255, 0.62);
   border-radius: 8px;
   background:
@@ -529,8 +584,27 @@ label {
   overflow: hidden;
 }
 
+.match-stage {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.26fr) minmax(0, 1.48fr) minmax(112px, 0.26fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(6, 20, 46, 0.18), rgba(6, 20, 46, 0.36)),
+    radial-gradient(circle at center, transparent 12%, rgba(0, 0, 0, 0.18) 72%);
+  pointer-events: none;
+}
+
 .center-circle {
   position: absolute;
+  z-index: 2;
   left: 50%;
   top: 50%;
   width: 132px;
@@ -540,8 +614,127 @@ label {
   transform: translate(-50%, -50%);
 }
 
+.field-question-panel {
+  height: 100%;
+  display: grid;
+  align-content: start;
+  overflow: visible;
+  padding: clamp(12px, 1.4vw, 16px);
+  border: 1px solid rgba(54, 224, 255, 0.28);
+  background:
+    linear-gradient(180deg, rgba(6, 20, 46, 0.58), rgba(11, 35, 72, 0.44)),
+    rgba(0, 0, 0, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px);
+}
+
+.field-question-panel .eyebrow {
+  margin-bottom: 4px;
+}
+
+.live-event-line {
+  display: none;
+}
+
+.question-side .live-event-line {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.live-event-line span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--ink);
+  background: var(--yellow);
+  font-weight: 950;
+}
+
+.live-event-line strong {
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.live-event-line p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: rgba(248, 250, 252, 0.82);
+  font-size: 0.78rem;
+  line-height: 1.18;
+}
+
+.live-event-line.event-goal span,
+.live-event-line.event-ready span {
+  background: var(--green);
+}
+
+.live-event-line.event-pause span {
+  background: var(--blue);
+}
+
+.field-question-panel .question-topline {
+  gap: 8px;
+  font-size: 0.7rem;
+}
+
+.field-question-panel h2 {
+  margin: 4px 0;
+  font-size: clamp(1.05rem, 1.65vw, 1.55rem);
+  line-height: 1.08;
+}
+
+.field-question-panel p {
+  margin: 0;
+  font-size: clamp(0.78rem, 0.96vw, 0.9rem);
+  line-height: 1.24;
+}
+
+.field-question-panel .public-options {
+  grid-template-columns: 1fr;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.field-question-panel .public-option {
+  min-height: 42px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  padding: 6px;
+  background: rgba(3, 13, 31, 0.62);
+}
+
+.field-question-panel .public-option span {
+  width: 28px;
+  height: 28px;
+}
+
+.field-question-panel .public-option strong {
+  font-size: clamp(0.7rem, 0.88vw, 0.84rem);
+  line-height: 1.16;
+}
+
+.field-question-panel .reveal-strip,
+.field-question-panel .explanation-strip {
+  margin-top: 6px;
+  padding: 7px;
+  font-size: 0.78rem;
+}
+
 .goal {
   position: absolute;
+  z-index: 2;
   top: 50%;
   width: 54px;
   height: 136px;
@@ -567,6 +760,7 @@ label {
 
 .ball {
   position: absolute;
+  z-index: 3;
   top: 50%;
   left: 50%;
   width: 68px;
@@ -913,6 +1107,10 @@ label {
     grid-template-columns: 1fr;
   }
 
+  .match-stage {
+    grid-template-columns: 1fr;
+  }
+
   .score-tower {
     min-height: 160px;
   }
@@ -936,7 +1134,15 @@ label {
   }
 
   .field {
-    height: 260px;
+    min-height: 280px;
+  }
+
+  .field-question-panel {
+    height: auto;
+  }
+
+  .play-chip small {
+    white-space: normal;
   }
 
   .play-chip,

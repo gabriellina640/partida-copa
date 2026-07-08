@@ -18,7 +18,7 @@ Aquecimento em tempo real para a Copa de Prompts do MPAC, com perguntas no forma
 - 5 posses iniciais para cada equipe.
 - Alternancia fixa de posse inicial: A, B, A, B...
 - Ataque: 45 segundos.
-- Contra-ataque: 15 segundos.
+- Contra-ataque: 20 segundos.
 - Apos confirmar resposta, publico e equipe veem a alternativa escolhida e aguardam 5 segundos.
 - Depois dos 5 segundos, o sistema revela a alternativa correta e mostra gol, defesa ou fim da jogada.
 - Se o ataque errar ou estourar o tempo, a outra equipe recebe contra-ataque.

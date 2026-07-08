@@ -52,6 +52,17 @@ test('configures team names and generates entry codes', () => {
   assert.equal(state.teams.B.code, 'B222');
 });
 
+test('uses updated match rules and question bank', () => {
+  assert.equal(gameQuestions.length, 10);
+  assert.equal(REBOUND_SECONDS, 20);
+  assert.equal(gameQuestions[0].category, 'Restricao');
+  assert.equal(gameQuestions[0].attack.correctIndex, 1);
+  assert.equal(gameQuestions[6].attack.correctIndex, 2);
+  assert.equal(gameQuestions[7].rebound.correctIndex, 1);
+  assert.equal(gameQuestions[9].attack.correctIndex, 1);
+  assert.equal(gameQuestions[9].rebound.correctIndex, 0);
+});
+
 test('blocks match start until both teams are ready', () => {
   const state = createConfiguredState();
   const result = startMatch(state);

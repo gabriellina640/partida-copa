@@ -19,7 +19,7 @@ O produto tera uma tela publica que tambem funciona como painel do administrador
 - Tela de equipe com entrada por codigo e resposta da pergunta ativa.
 - 10 rodadas no total, com 5 posses iniciais para cada equipe.
 - Ataque com 45 segundos.
-- Contra-ataque com 15 segundos.
+- Contra-ataque com 20 segundos.
 - Revelacao com 5 segundos apos confirmacao da resposta.
 - Snapshot JSON local para recuperacao.
 - Retomada normal e retomada emergencial.
@@ -116,7 +116,7 @@ A alternancia da proxima rodada independe do contra-ataque.
 ### Contra-Ataque
 
 - A equipe adversaria recebe uma pergunta de contra-ataque.
-- Ela tem 15 segundos para confirmar uma resposta.
+- Ela tem 20 segundos para confirmar uma resposta.
 - Se acertar, marca gol e a rodada termina.
 - Se errar ou o tempo acabar, a rodada termina sem gol adicional.
 

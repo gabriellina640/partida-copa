@@ -1,5 +1,5 @@
 export const ATTACK_SECONDS = 45;
-export const REBOUND_SECONDS = 15;
+export const REBOUND_SECONDS = 20;
 export const REVEAL_SECONDS = 5;
 export const BETWEEN_ROUNDS_SECONDS = 3;
 export const SNAPSHOT_VERSION = 1;

@@ -7,12 +7,12 @@ export const gameQuestions = [
       statement: 'Qual instrução é mais adequada para reduzir risco de invenção de dados em análise institucional?',
       options: [
         'Use as informações disponíveis e complemente o que parecer lógico.',
-        'Quando faltar dado relevante, registre a lacuna e não formule conclusão definitiva.',
+        'Gere a sua resposta considerando apenas as informações passadas como contexto.',
         'Utilize conhecimento geral para tornar a análise mais completa.',
         'Evite mencionar dúvidas para deixar o texto mais objetivo.'
       ],
       correctIndex: 1,
-      explanation: 'A melhor instrução exige registrar lacunas e evita conclusões definitivas sem base nos dados.'
+      explanation: 'Instruções que limitam a IA ao contexto fornecido reduzem risco de alucinação, enquanto pedir para completar com lógica ou conhecimento geral aumenta esse risco.'
     },
     rebound: {
       title: 'Risco de alucinação',

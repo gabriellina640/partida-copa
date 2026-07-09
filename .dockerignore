@@ -1,0 +1,9 @@
+node_modules
+client/dist
+server/game-snapshot.json
+data
+.git
+.gitignore
+docs
+README.md
+npm-debug.log*

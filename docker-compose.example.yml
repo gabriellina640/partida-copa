@@ -1,0 +1,15 @@
+services:
+  partida-copa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: partida-copa
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      SNAPSHOT_PATH: /data/game-snapshot.json
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./data:/data

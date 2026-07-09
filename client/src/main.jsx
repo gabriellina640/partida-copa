@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { io } from 'socket.io-client';
 import { resolveSocketUrl } from './socketConfig.js';
 import './styles.css';
+import equipeAImage from '../../equipea.png';
+import equipeBImage from '../../equipeb.png';
 
 const socketUrl = resolveSocketUrl({
   explicitUrl: import.meta.env.VITE_SOCKET_URL,
@@ -47,7 +49,15 @@ function App() {
     return <TeamPortal state={state} connected={connected} />;
   }
 
-  return <PublicAdminScreen state={state} connected={connected} />;
+  if (route.includes('/partida') || route.includes('/atividade')) {
+    return <PublicAdminScreen state={state} connected={connected} />;
+  }
+
+  if (route.includes('/campo')) {
+    return <FieldPlaygroundScreen state={state} connected={connected} />;
+  }
+
+  return <StartScreen connected={connected} />;
 }
 
 function Loading({ connected }) {
@@ -59,6 +69,119 @@ function Loading({ connected }) {
         <ConnectionPill connected={connected} />
       </section>
     </main>
+  );
+}
+
+function StartScreen({ connected }) {
+  return (
+    <main className="page start-page">
+      <section className="start-hero">
+        <div>
+          <p className="eyebrow">Aquecimento da Copa</p>
+          <h1>Copa de Prompts MPAC</h1>
+          <p className="brand-line">Escolha o modo de exibição para iniciar.</p>
+        </div>
+        <ConnectionPill connected={connected} />
+      </section>
+
+      <section className="start-grid">
+        <a className="start-card primary-start-card" href="/partida">
+          <span>01</span>
+          <strong>Atividade atual</strong>
+          <small>Abre a tela principal com placar, perguntas, cronômetro e equipes.</small>
+        </a>
+        <a className="start-card field-start-card" href="/campo">
+          <span>02</span>
+          <strong>Campo manipulável</strong>
+          <small>Abre um campo tático livre para arrastar bola e equipes em qualquer posição.</small>
+        </a>
+      </section>
+    </main>
+  );
+}
+
+function FieldPlaygroundScreen({ state, connected }) {
+  const [localFreeScore, setLocalFreeScore] = useState(() => state.field?.score || { A: 0, B: 0 });
+  const freeScore = localFreeScore;
+
+  useEffect(() => {
+    if (!state.field?.score) return;
+    setLocalFreeScore(state.field.score);
+  }, [state.field?.score?.A, state.field?.score?.B]);
+
+  function adjustFreeScore(teamId, delta) {
+    const currentScore = Number(freeScore[teamId]) || 0;
+    const nextScore = Math.max(0, currentScore + delta);
+
+    setLocalFreeScore((current) => ({
+      ...current,
+      [teamId]: nextScore
+    }));
+
+    socket.emit('field:adjust-score', {
+      teamId,
+      score: nextScore
+    });
+  }
+
+  function registerFreeGoal(teamId, side) {
+    setLocalFreeScore((current) => ({
+      ...current,
+      [teamId]: (Number(current[teamId]) || 0) + 1
+    }));
+    socket.emit('field:goal', { teamId, side });
+  }
+
+  return (
+    <main className="page field-playground-page">
+      <a className="field-back-link" href="/">Voltar</a>
+      <FreeScoreboard
+        state={state}
+        score={freeScore}
+        onAdjust={adjustFreeScore}
+      />
+      <div className="field-playground-status">
+        <ConnectionPill connected={connected} />
+      </div>
+      <section className="field-playground-card">
+        <InteractivePitch state={state} freeMode onFreeGoal={registerFreeGoal} />
+      </section>
+    </main>
+  );
+}
+
+function FreeScoreboard({ state, score, onAdjust }) {
+  return (
+    <section className="free-scoreboard" aria-label="Placar do campo">
+      <FreeScoreTeam
+        side="A"
+        image={equipeAImage}
+        name={state.teams.A.name}
+        score={score.A}
+        onAdjust={onAdjust}
+      />
+      <div className="free-score-divider">x</div>
+      <FreeScoreTeam
+        side="B"
+        image={equipeBImage}
+        name={state.teams.B.name}
+        score={score.B}
+        onAdjust={onAdjust}
+      />
+    </section>
+  );
+}
+
+function FreeScoreTeam({ side, image, name, score, onAdjust }) {
+  return (
+    <div className={`free-score-team free-score-team-${side.toLowerCase()}`}>
+      <img src={image} alt="" draggable="false" />
+      <strong>{score}</strong>
+      <div className="free-score-controls" aria-label={`Ajustar placar ${name}`}>
+        <button type="button" onClick={() => onAdjust(side, 1)} aria-label={`Aumentar placar ${name}`}>▲</button>
+        <button type="button" onClick={() => onAdjust(side, -1)} aria-label={`Diminuir placar ${name}`}>▼</button>
+      </div>
+    </div>
   );
 }
 
@@ -127,7 +250,7 @@ function PublicAdminScreen({ state, connected }) {
   function emitAdmin(event, payload) {
     socket.emit(event, payload, (result) => {
       if (!result?.ok) {
-        setNotice({ type: 'error', message: result?.error || 'Operacao nao realizada.' });
+        setNotice({ type: 'error', message: result?.error || 'Operação não realizada.' });
         return;
       }
       setNotice({ type: 'success', message: 'Comando aplicado.' });
@@ -196,6 +319,10 @@ function PublicAdminScreen({ state, connected }) {
         {adminUnlocked ? drawerOpen ? 'Fechar painel' : 'Painel' : 'Admin'}
       </button>
 
+      <a className="match-back-link" href="/" title="Voltar ao menu inicial">
+        Menu
+      </a>
+
       {passwordOpen && !adminUnlocked && <AdminPasswordDialog onUnlock={unlockAdmin} onClose={() => setPasswordOpen(false)} />}
 
       <section className="broadcast-shell">
@@ -237,7 +364,7 @@ function AdminDrawer({
       <div className="drawer-head">
         <div>
           <p className="eyebrow">Cabine</p>
-          <h2>Operacao</h2>
+          <h2>Operação</h2>
         </div>
         <ConnectionPill connected={connected} />
       </div>
@@ -258,7 +385,7 @@ function AdminDrawer({
       </section>
 
       <section className="drawer-section">
-        <h3>Codigos</h3>
+          <h3>Códigos</h3>
         <CodeStatus team={state.teams.A} />
         <CodeStatus team={state.teams.B} />
       </section>
@@ -282,7 +409,7 @@ function AdminDrawer({
         {state.recovery ? (
           <p className="help-text">{state.recovery.mode === 'invalid' ? state.recovery.error : 'Snapshot carregado. Confira antes de retomar.'}</p>
         ) : (
-          <p className="help-text">Sem pendencia de recuperacao.</p>
+          <p className="help-text">Sem pendência de recuperação.</p>
         )}
         <div className="score-edit">
           <label>
@@ -299,7 +426,7 @@ function AdminDrawer({
 
       <details className="drawer-section emergency-box">
         <summary>Modo emergencial</summary>
-        <p className="help-text">Use somente se o snapshot nao permitir retomada normal.</p>
+        <p className="help-text">Use somente se o snapshot não permitir retomada normal.</p>
         <label>
           Rodada
           <input
@@ -374,7 +501,7 @@ function CodeStatus({ team }) {
     <div className="code-status">
       <div>
         <strong>{team.name}</strong>
-        <span>{team.connected ? 'Conectada' : 'Aguardando'} · {team.ready ? 'Pronta' : 'Nao pronta'}</span>
+        <span>{team.connected ? 'Conectada' : 'Aguardando'} · {team.ready ? 'Pronta' : 'Não pronta'}</span>
       </div>
       <code>{team.code}</code>
     </div>
@@ -387,7 +514,7 @@ function BroadcastHeader({ state, connected }) {
       <div>
         <p className="eyebrow">Aquecimento da Copa</p>
         <h1>Copa de Prompts MPAC</h1>
-        <p className="brand-line">Criatividade, estrategia e IA em campo.</p>
+        <p className="brand-line">Criatividade, estratégia e IA em campo.</p>
       </div>
       <div className="header-meta">
         <ConnectionPill connected={connected} />
@@ -399,10 +526,6 @@ function BroadcastHeader({ state, connected }) {
 }
 
 function ScoreField({ state }) {
-  const isGoal = ['goal', 'rebound-goal'].includes(state.lastEvent?.type);
-  const isDefense = ['defense', 'double-defense', 'timeout-defense', 'timeout-double-defense'].includes(state.lastEvent?.type);
-  const ballSide = state.activeTeam === 'A' ? 'ball-left' : state.activeTeam === 'B' ? 'ball-right' : 'ball-center';
-
   return (
     <section className="stadium-board">
       <div className="question-side">
@@ -414,7 +537,7 @@ function ScoreField({ state }) {
           <div className="play-chip">
             <span>Jogada</span>
             <strong>{state.lastEvent?.title || 'Aguardando'}</strong>
-            <small>{state.lastEvent?.message || 'Configure o aquecimento para comecar.'}</small>
+            <small>{state.lastEvent?.message || 'Configure o aquecimento para começar.'}</small>
           </div>
           <TimerBadge state={state} />
           <div className="possession-chip">
@@ -424,12 +547,7 @@ function ScoreField({ state }) {
         </div>
         <div className="match-stage">
           <TeamScore team={state.teams.A} score={state.score.A} side="A" />
-          <div className="field">
-            <div className="goal left-goal">GOL</div>
-            <div className="center-circle"></div>
-            <div className={`ball ${ballSide} ${isGoal ? 'ball-goal' : ''} ${isDefense ? 'ball-defense' : ''}`}>⚽</div>
-            <div className="goal right-goal">GOL</div>
-          </div>
+          <InteractivePitch state={state} />
           <TeamScore team={state.teams.B} score={state.score.B} side="B" />
         </div>
       </div>
@@ -437,12 +555,360 @@ function ScoreField({ state }) {
   );
 }
 
+function InteractivePitch({ state, freeMode = false, onFreeGoal }) {
+  const isGoal = !freeMode && ['goal', 'rebound-goal'].includes(state.lastEvent?.type);
+  const isDefense = !freeMode && ['defense', 'double-defense', 'timeout-defense', 'timeout-double-defense'].includes(state.lastEvent?.type);
+  const fieldRef = useRef(null);
+  const [pieces, setPieces] = useState(() => initialFieldPieces(state, freeMode));
+  const piecesRef = useRef(pieces);
+  const [freeGoal, setFreeGoal] = useState(null);
+  const draggingPiece = useRef(null);
+  const lastFreeTouch = useRef(null);
+  const scoredFreeGoal = useRef(null);
+
+  useEffect(() => {
+    piecesRef.current = pieces;
+  }, [pieces]);
+
+  useEffect(() => {
+    if (!freeMode || draggingPiece.current) return;
+    const syncedPieces = initialFieldPieces(state, true);
+    piecesRef.current = syncedPieces;
+    setPieces(syncedPieces);
+  }, [
+    freeMode,
+    state.field?.pieces?.teamA?.x,
+    state.field?.pieces?.teamA?.y,
+    state.field?.pieces?.teamB?.x,
+    state.field?.pieces?.teamB?.y,
+    state.field?.pieces?.ball?.x,
+    state.field?.pieces?.ball?.y
+  ]);
+
+  useEffect(() => {
+    if (freeMode) return;
+
+    const nextPieces = {
+      ...piecesRef.current,
+      ball: automaticBallPosition(state)
+    };
+    piecesRef.current = nextPieces;
+    setPieces((current) => ({
+      ...current,
+      ball: automaticBallPosition(state)
+    }));
+  }, [freeMode, state.activeTeam, state.lastEvent?.type, state.phase]);
+
+  function movePiece(pieceId, event) {
+    const bounds = fieldRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+
+    const clientX = event.clientX ?? event.touches?.[0]?.clientX;
+    const clientY = event.clientY ?? event.touches?.[0]?.clientY;
+
+    if (clientX == null || clientY == null) return;
+
+    const nextPosition = {
+      x: clamp(((clientX - bounds.left) / bounds.width) * 100, 4, 96),
+      y: clamp(((clientY - bounds.top) / bounds.height) * 100, 7, 93)
+    };
+
+    const previous = piecesRef.current;
+    const next = applyPieceMovement(previous, pieceId, nextPosition, {
+      freeMode,
+      setFreeGoal,
+      onFreeGoal,
+      lastFreeTouch,
+      scoredFreeGoal
+    });
+
+    piecesRef.current = next;
+    setPieces(next);
+
+    if (freeMode) {
+      emitFieldPiece(pieceId, next[pieceId]);
+
+      if (next.ball !== previous.ball) {
+        emitFieldPiece('ball', next.ball);
+      }
+    }
+  }
+
+  function startDragging(pieceId, event) {
+    draggingPiece.current = pieceId;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    movePiece(pieceId, event);
+  }
+
+  function dragPiece(event) {
+    if (!draggingPiece.current) return;
+    movePiece(draggingPiece.current, event);
+  }
+
+  function stopDragging(event) {
+    if (draggingPiece.current) {
+      event.currentTarget.releasePointerCapture?.(event.pointerId);
+    }
+    draggingPiece.current = null;
+  }
+
+  function resetPiece(pieceId) {
+    const position = initialFieldPieces(state, freeMode)[pieceId];
+    const next = {
+      ...piecesRef.current,
+      [pieceId]: position
+    };
+    piecesRef.current = next;
+    setPieces(next);
+
+    if (freeMode) {
+      emitFieldPiece(pieceId, position);
+    }
+  }
+
+  return (
+    <div className={`field ${freeMode ? 'free-field' : ''}`} ref={fieldRef}>
+      <div className="pitch-mow"></div>
+      <div className="corner-arc corner-top-left"></div>
+      <div className="corner-arc corner-top-right"></div>
+      <div className="corner-arc corner-bottom-left"></div>
+      <div className="corner-arc corner-bottom-right"></div>
+      <div className="penalty-box left-penalty"></div>
+      <div className="penalty-box right-penalty"></div>
+      <div className="six-yard-box left-six-yard"></div>
+      <div className="six-yard-box right-six-yard"></div>
+      <div className="penalty-spot left-spot"></div>
+      <div className="penalty-spot right-spot"></div>
+      <div className="penalty-arc left-arc"></div>
+      <div className="penalty-arc right-arc"></div>
+      <div className="goal left-goal" aria-label="Gol esquerdo"></div>
+      <div className="center-circle"></div>
+      <div className="center-spot"></div>
+      {freeGoal && <div className={`free-goal-flash ${freeGoal.side}`}>GOOOOOL</div>}
+      <DraggableFieldPiece
+        id="teamA"
+        className="team-marker marker-a"
+        position={pieces.teamA}
+        label={teamInitial(state.teams.A.name, 'A')}
+        image={equipeAImage}
+        title={state.teams.A.name}
+        onPointerDown={startDragging}
+        onPointerMove={dragPiece}
+        onPointerUp={stopDragging}
+        onDoubleClick={resetPiece}
+      />
+      {!freeMode && (
+        <DraggableFieldPiece
+          id="ball"
+          className={`ball ${isGoal ? 'ball-goal' : ''} ${isDefense ? 'ball-defense' : ''}`}
+          position={pieces.ball}
+          label="⚽"
+          title="Bola"
+          onPointerDown={startDragging}
+          onPointerMove={dragPiece}
+          onPointerUp={stopDragging}
+          onDoubleClick={resetPiece}
+        />
+      )}
+      {freeMode && (
+        <DraggableFieldPiece
+          id="ball"
+          className={`free-ball ${freeGoal ? 'free-ball-scored' : ''}`}
+          position={pieces.ball}
+          label="⚽"
+          title="Bola"
+          onPointerDown={startDragging}
+          onPointerMove={dragPiece}
+          onPointerUp={stopDragging}
+          onDoubleClick={resetPiece}
+        />
+      )}
+      <DraggableFieldPiece
+        id="teamB"
+        className="team-marker marker-b"
+        position={pieces.teamB}
+        label={teamInitial(state.teams.B.name, 'B')}
+        image={equipeBImage}
+        title={state.teams.B.name}
+        onPointerDown={startDragging}
+        onPointerMove={dragPiece}
+        onPointerUp={stopDragging}
+        onDoubleClick={resetPiece}
+      />
+      <div className="goal right-goal" aria-label="Gol direito"></div>
+    </div>
+  );
+}
+
+function DraggableFieldPiece({
+  id,
+  className,
+  position,
+  label,
+  image,
+  title,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onDoubleClick
+}) {
+  return (
+    <button
+      type="button"
+      className={`field-piece ${className}`}
+      style={{ left: `${position.x}%`, top: `${position.y}%` }}
+      title={`${title}: arraste para reposicionar`}
+      onPointerDown={(event) => onPointerDown(id, event)}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onDoubleClick={() => onDoubleClick(id)}
+    >
+      {image && <img src={image} alt="" draggable="false" />}
+      {label}
+    </button>
+  );
+}
+
+function initialFieldPieces(state, freeMode = false) {
+  if (freeMode && state.field?.pieces) {
+    return {
+      teamA: normalizeFieldPoint(state.field.pieces.teamA, { x: 12, y: 36 }),
+      teamB: normalizeFieldPoint(state.field.pieces.teamB, { x: 12, y: 64 }),
+      ball: normalizeFieldPoint(state.field.pieces.ball, { x: 88, y: 50 })
+    };
+  }
+
+  return {
+    teamA: freeMode ? { x: 12, y: 36 } : { x: 28, y: 50 },
+    ball: freeMode ? { x: 88, y: 50 } : automaticBallPosition(state),
+    teamB: freeMode ? { x: 12, y: 64 } : { x: 72, y: 50 }
+  };
+}
+
+function normalizeFieldPoint(value, fallback) {
+  const x = Number(value?.x);
+  const y = Number(value?.y);
+
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return fallback;
+  }
+
+  return {
+    x: clamp(x, 3.5, 96.5),
+    y: clamp(y, 7, 93)
+  };
+}
+
+function emitFieldPiece(pieceId, position) {
+  socket.emit('field:move-piece', { pieceId, position });
+}
+
+function applyPieceMovement(current, pieceId, nextPosition, options) {
+  const { freeMode, setFreeGoal, onFreeGoal, lastFreeTouch, scoredFreeGoal } = options;
+
+  if (!freeMode || pieceId === 'ball') {
+    const next = { ...current, [pieceId]: nextPosition };
+
+    if (freeMode && pieceId === 'ball') {
+      checkFreeGoal(next.ball, {
+        setFreeGoal,
+        onFreeGoal,
+        scorer: goalScorerFromSide(next.ball.x <= 50 ? 'left' : 'right', lastFreeTouch.current),
+        scoredFreeGoal
+      });
+    }
+
+    return next;
+  }
+
+  const next = { ...current, [pieceId]: nextPosition };
+
+  if (!['teamA', 'teamB'].includes(pieceId)) {
+    return next;
+  }
+
+  const dx = next.ball.x - nextPosition.x;
+  const dy = next.ball.y - nextPosition.y;
+  const distance = Math.hypot(dx, dy);
+
+  if (distance > 10) {
+    return next;
+  }
+
+  lastFreeTouch.current = pieceId === 'teamB' ? 'B' : 'A';
+
+  const force = Math.max(5, 15 - distance);
+  const directionX = distance > 0 ? dx / distance : 1;
+  const directionY = distance > 0 ? dy / distance : 0;
+
+  next.ball = {
+    x: clamp(next.ball.x + directionX * force, 3.5, 96.5),
+    y: clamp(next.ball.y + directionY * force, 18, 82)
+  };
+
+  checkFreeGoal(next.ball, {
+    setFreeGoal,
+    onFreeGoal,
+    scorer: lastFreeTouch.current,
+    scoredFreeGoal
+  });
+  return next;
+}
+
+function checkFreeGoal(ballPosition, options) {
+  const { setFreeGoal, onFreeGoal, scorer, scoredFreeGoal } = options;
+  const inGoalHeight = ballPosition.y >= 37 && ballPosition.y <= 63;
+  const side = ballPosition.x <= 4.2 && inGoalHeight ? 'left' : ballPosition.x >= 95.8 && inGoalHeight ? 'right' : null;
+
+  if (!side) {
+    scoredFreeGoal.current = null;
+    return;
+  }
+
+  if (scoredFreeGoal.current === side) return;
+
+  scoredFreeGoal.current = side;
+  setFreeGoal({ side, id: Date.now() });
+  onFreeGoal?.(scorer || goalScorerFromSide(side), side);
+  window.setTimeout(() => setFreeGoal(null), 1600);
+}
+
+function goalScorerFromSide(side, lastTouch) {
+  if (lastTouch) return lastTouch;
+  return side === 'right' ? 'A' : 'B';
+}
+
+function automaticBallPosition(state) {
+  const type = state.lastEvent?.type;
+
+  if (['goal', 'rebound-goal'].includes(type)) {
+    return state.lastEvent?.team === 'A' ? { x: 93, y: 50 } : { x: 7, y: 50 };
+  }
+
+  if (['defense', 'double-defense', 'timeout-defense', 'timeout-double-defense'].includes(type)) {
+    return state.activeTeam === 'A' ? { x: 38, y: 38 } : { x: 62, y: 38 };
+  }
+
+  if (state.activeTeam === 'A') return { x: 35, y: 50 };
+  if (state.activeTeam === 'B') return { x: 65, y: 50 };
+  return { x: 50, y: 50 };
+}
+
+function teamInitial(name, fallback) {
+  return String(name || fallback).trim().slice(0, 1).toUpperCase();
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function TimerBadge({ state }) {
   const urgent = ['attack', 'rebound', 'revealing'].includes(state.phase) && Number(state.timeLeft) <= 5;
 
   return (
     <div className={`match-clock ${urgent ? 'urgent' : ''}`}>
-      <span>{state.phase === 'revealing' ? 'Revelacao' : 'Tempo'}</span>
+      <span>{state.phase === 'revealing' ? 'Revelação' : 'Tempo'}</span>
       <strong>{formatTime(state.timeLeft)}</strong>
       <small>{clockHelp(state)}</small>
     </div>
@@ -455,7 +921,7 @@ function TeamScore({ team, score, side }) {
       <p>Equipe {side}</p>
       <strong>{score}</strong>
       <span>{team.name}</span>
-      <small>{team.ready ? 'Pronta' : team.connected ? 'Conectada' : 'Aguardando codigo'}</small>
+      <small>{team.ready ? 'Pronta' : team.connected ? 'Conectada' : 'Aguardando código'}</small>
     </aside>
   );
 }
@@ -472,8 +938,8 @@ function PublicQuestion({ state, compact = false }) {
       <section className={`${className} setup-panel`}>
         {compact && <LiveEventLine state={state} />}
         <p className="eyebrow">Aquecimento</p>
-        <h2>Configure as equipes e compartilhe os codigos</h2>
-        <p>Este aquecimento prepara as equipes para a dinamica da Copa: ritmo, tecnica e validacao em campo.</p>
+        <h2>Configure as equipes e compartilhe os códigos</h2>
+        <p>Este aquecimento prepara as equipes para a dinâmica da Copa: ritmo, técnica e validação em campo.</p>
       </section>
     );
   }
@@ -494,7 +960,7 @@ function PublicQuestion({ state, compact = false }) {
       <section className={`${className} setup-panel`}>
         {compact && <LiveEventLine state={state} />}
         <p className="eyebrow">{state.status === 'finished' ? 'Fim de jogo' : 'Intervalo'}</p>
-        <h2>{state.lastEvent?.title || 'Aguardando proxima jogada'}</h2>
+        <h2>{state.lastEvent?.title || 'Aguardando próxima jogada'}</h2>
         <p>{state.lastEvent?.message}</p>
       </section>
     );
@@ -525,7 +991,7 @@ function PublicQuestion({ state, compact = false }) {
           </div>
         ))}
       </div>
-      {state.phase === 'revealing' && <div className="reveal-strip">Revelacao em {formatTime(state.timeLeft)}</div>}
+      {state.phase === 'revealing' && <div className="reveal-strip">Revelação em {formatTime(state.timeLeft)}</div>}
       {showCorrect && <div className="explanation-strip">{state.lastEvent?.explanation}</div>}
     </section>
   );
@@ -536,7 +1002,7 @@ function LiveEventLine({ state }) {
     <div className={`live-event-line event-${eventTone(state.lastEvent?.type || 'setup')}`}>
       <span>{eventIcon(state.lastEvent?.type)}</span>
       <strong>{state.lastEvent?.title || phaseLabel(state)}</strong>
-      <p>{state.lastEvent?.message || 'Aguardando inicio da partida.'}</p>
+      <p>{state.lastEvent?.message || 'Aguardando início da partida.'}</p>
     </div>
   );
 }
@@ -545,12 +1011,12 @@ function MatchTimeline({ state }) {
   return (
     <section className="timeline-panel">
       <div>
-        <p className="eyebrow">Historico</p>
-        <h2>Ultimas jogadas</h2>
+        <p className="eyebrow">Histórico</p>
+        <h2>Últimas jogadas</h2>
       </div>
       <div className="timeline-list">
         {state.history.length === 0 ? (
-          <p className="muted">As jogadas aparecerao aqui.</p>
+          <p className="muted">As jogadas aparecerão aqui.</p>
         ) : state.history.slice(0, 6).map((item) => (
           <article className="timeline-item" key={item.id}>
             <span>{eventIcon(item.type)}</span>
@@ -590,7 +1056,7 @@ function TeamPortal({ state, connected }) {
     event.preventDefault();
     socket.emit('team:join-code', { code }, (result) => {
       if (!result?.ok) {
-        setError(result?.error || 'Codigo invalido.');
+        setError(result?.error || 'Código inválido.');
         return;
       }
 
@@ -606,7 +1072,7 @@ function TeamPortal({ state, connected }) {
       <main className="page center-page team-entry-page">
         <form className="panel entry-panel" onSubmit={join}>
           <p className="eyebrow">Entrada da equipe</p>
-          <h1>Digite o codigo</h1>
+          <h1>Digite o código</h1>
           <ConnectionPill connected={connected} />
           <input className="code-input" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} placeholder="A7K2" />
           {error && <div className="notice error">{error}</div>}
@@ -638,7 +1104,7 @@ function TeamScreen({ state, connected, teamId, onLeave }) {
 
   function ready() {
     socket.emit('team:ready', { teamId, ready: true }, (result) => {
-      if (!result?.ok) setFeedback({ type: 'error', message: result?.error || 'Nao foi possivel marcar prontidao.' });
+      if (!result?.ok) setFeedback({ type: 'error', message: result?.error || 'Não foi possível marcar prontidão.' });
     });
   }
 
@@ -647,10 +1113,10 @@ function TeamScreen({ state, connected, teamId, onLeave }) {
 
     socket.emit('answer:submit', { teamId, questionId: question.id, optionIndex: selected }, (result) => {
       if (!result?.ok) {
-        setFeedback({ type: 'error', message: result?.error || 'Nao foi possivel confirmar.' });
+        setFeedback({ type: 'error', message: result?.error || 'Não foi possível confirmar.' });
         return;
       }
-      setFeedback({ type: 'success', message: 'Resposta travada. Aguarde a revelacao.' });
+      setFeedback({ type: 'success', message: 'Resposta travada. Aguarde a revelação.' });
     });
   }
 
@@ -714,8 +1180,8 @@ function WaitingTeamSetup({ team, onReady }) {
     <div className="waiting-box">
       <div className="waiting-ball">⚽</div>
       <p className="eyebrow">Aquecimento</p>
-      <h2>{team.ready ? 'Equipe pronta' : 'Marque prontidao'}</h2>
-      <p>O aquecimento so comeca quando as duas equipes estiverem prontas.</p>
+      <h2>{team.ready ? 'Equipe pronta' : 'Marque prontidão'}</h2>
+      <p>O aquecimento só começa quando as duas equipes estiverem prontas.</p>
       <button className="primary-action" disabled={team.ready} onClick={onReady}>{team.ready ? 'Pronta' : 'Estou pronta'}</button>
     </div>
   );
@@ -724,9 +1190,9 @@ function WaitingTeamSetup({ team, onReady }) {
 function WaitingTurn({ state, teamId }) {
   const active = state.activeTeam ? state.teams[state.activeTeam] : null;
   const text = state.phase === 'between'
-    ? 'A proxima rodada comeca em instantes.'
+    ? 'A próxima rodada começa em instantes.'
     : state.phase === 'revealing'
-      ? 'Resposta confirmada. Aguarde a revelacao.'
+      ? 'Resposta confirmada. Aguarde a revelação.'
       : active
         ? `Vez de ${active.name}.`
         : 'Aguardando jogada.';
@@ -759,7 +1225,7 @@ function LockedAnswer({ state, question }) {
         <strong>Resposta confirmada</strong>
       </div>
       <h2>{question.title}</h2>
-      <p>A alternativa {String.fromCharCode(65 + selected)} foi travada. Revelacao em {formatTime(state.timeLeft)}.</p>
+      <p>A alternativa {String.fromCharCode(65 + selected)} foi travada. Revelação em {formatTime(state.timeLeft)}.</p>
       <div className="team-options">
         {question.options.map((option, index) => (
           <div className={`team-option locked ${selected === index ? 'selected' : ''}`} key={option}>
@@ -791,7 +1257,7 @@ function phaseLabel(state) {
   if (state.status === 'finished') return 'Fim de jogo';
   if (state.phase === 'attack') return 'Ataque';
   if (state.phase === 'rebound') return 'Contra-ataque';
-  if (state.phase === 'revealing') return 'Revelacao';
+  if (state.phase === 'revealing') return 'Revelação';
   if (state.phase === 'between') return 'Intervalo';
   return state.phase;
 }
@@ -801,8 +1267,8 @@ function clockHelp(state) {
   if (state.status === 'paused') return 'Pausado';
   if (state.phase === 'attack') return 'Ataque 45s';
   if (state.phase === 'rebound') return 'Contra-ataque 20s';
-  if (state.phase === 'revealing') return 'Decisao em campo';
-  if (state.phase === 'between') return 'Proxima rodada';
+  if (state.phase === 'revealing') return 'Decisão em campo';
+  if (state.phase === 'between') return 'Próxima rodada';
   return 'Encerrado';
 }
 

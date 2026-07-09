@@ -18,3 +18,6 @@ AGENTS.md
 .superpowers/
 server/game-snapshot.json
 server/game-snapshot.json.tmp
+
+docker-compose.yml
+Dockerfile

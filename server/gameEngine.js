@@ -5,6 +5,19 @@ export const BETWEEN_ROUNDS_SECONDS = 3;
 export const SNAPSHOT_VERSION = 1;
 
 const VALID_PHASES = ['setup', 'attack', 'rebound', 'revealing', 'between', 'paused', 'finished'];
+const FIELD_PIECES = ['teamA', 'teamB', 'ball'];
+
+function createInitialFieldState() {
+  return {
+    score: { A: 0, B: 0 },
+    pieces: {
+      teamA: { x: 12, y: 36 },
+      teamB: { x: 12, y: 64 },
+      ball: { x: 88, y: 50 }
+    },
+    lastGoal: null
+  };
+}
 
 function clone(value) {
   return structuredClone(value);
@@ -17,6 +30,43 @@ function normalizeCode(value) {
 function sanitizeName(value, fallback) {
   const name = String(value || '').trim();
   return name.slice(0, 40) || fallback;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function normalizePoint(value, fallback) {
+  const x = Number(value?.x);
+  const y = Number(value?.y);
+
+  if (!Number.isFinite(x) || !Number.isFinite(y)) {
+    return fallback;
+  }
+
+  return {
+    x: clamp(x, 3.5, 96.5),
+    y: clamp(y, 7, 93)
+  };
+}
+
+function normalizeFieldState(field) {
+  const base = createInitialFieldState();
+  const scoreA = Number(field?.score?.A);
+  const scoreB = Number(field?.score?.B);
+
+  return {
+    score: {
+      A: Number.isInteger(scoreA) && scoreA >= 0 ? scoreA : base.score.A,
+      B: Number.isInteger(scoreB) && scoreB >= 0 ? scoreB : base.score.B
+    },
+    pieces: {
+      teamA: normalizePoint(field?.pieces?.teamA, base.pieces.teamA),
+      teamB: normalizePoint(field?.pieces?.teamB, base.pieces.teamB),
+      ball: normalizePoint(field?.pieces?.ball, base.pieces.ball)
+    },
+    lastGoal: field?.lastGoal && typeof field.lastGoal === 'object' ? field.lastGoal : null
+  };
 }
 
 function defaultCodeGenerator(teamId) {
@@ -129,7 +179,7 @@ function goToNextRound(state) {
     type: 'next-round',
     team: starterTeam,
     title: `Rodada ${state.roundIndex + 1}`,
-    message: `${state.teams[starterTeam].name} comeca atacando.`
+    message: `${state.teams[starterTeam].name} começa atacando.`
   };
 }
 
@@ -153,7 +203,7 @@ export function createInitialState(questions, options = {}) {
     lastEvent: {
       type: 'setup',
       title: 'Configure o aquecimento',
-      message: 'Informe os nomes das equipes e compartilhe os codigos.'
+      message: 'Informe os nomes das equipes e compartilhe os códigos.'
     },
     history: [],
     answeredQuestionIds: [],
@@ -176,6 +226,7 @@ export function createInitialState(questions, options = {}) {
       }
     },
     questions: safeQuestions,
+    field: createInitialFieldState(),
     recovery: null,
     updatedAt: Date.now()
   };
@@ -185,7 +236,7 @@ export function configureMatch(state, payload = {}) {
   const next = clone(state);
 
   if (!['setup', 'paused'].includes(next.status)) {
-    return { ok: false, error: 'O aquecimento ja foi iniciado.', state };
+    return { ok: false, error: 'O aquecimento já foi iniciado.', state };
   }
 
   next.teams.A.name = sanitizeName(payload.teamAName, 'Equipe A');
@@ -205,7 +256,7 @@ export function joinTeamByCode(state, code) {
   const teamId = Object.values(next.teams).find((team) => team.code === normalized)?.id;
 
   if (!teamId) {
-    return { ok: false, error: 'Codigo invalido.', state };
+    return { ok: false, error: 'Código inválido.', state };
   }
 
   next.teams[teamId].connected = true;
@@ -223,11 +274,11 @@ export function markTeamReady(state, teamId, ready = true) {
   const next = clone(state);
 
   if (!['A', 'B'].includes(teamId)) {
-    return { ok: false, error: 'Equipe invalida.', state };
+    return { ok: false, error: 'Equipe inválida.', state };
   }
 
   if (!next.teams[teamId].connected) {
-    return { ok: false, error: 'Equipe ainda nao conectada.', state };
+    return { ok: false, error: 'Equipe ainda não conectada.', state };
   }
 
   next.teams[teamId].ready = Boolean(ready);
@@ -235,7 +286,7 @@ export function markTeamReady(state, teamId, ready = true) {
     type: 'team-ready',
     team: teamId,
     title: next.teams[teamId].ready ? 'Equipe pronta' : 'Equipe em espera',
-    message: `${next.teams[teamId].name} ${next.teams[teamId].ready ? 'esta pronta.' : 'ainda nao esta pronta.'}`
+    message: `${next.teams[teamId].name} ${next.teams[teamId].ready ? 'está pronta.' : 'ainda não está pronta.'}`
   };
   next.updatedAt = Date.now();
   return { ok: true, state: next };
@@ -247,7 +298,7 @@ export function canStartMatch(state) {
 
 export function startMatch(state) {
   if (state.status !== 'setup') {
-    return { ok: false, error: 'O aquecimento so pode iniciar na preparacao.', state };
+    return { ok: false, error: 'O aquecimento só pode iniciar na preparação.', state };
   }
 
   if (!canStartMatch(state)) {
@@ -270,8 +321,8 @@ export function startMatch(state) {
   next.lastEvent = {
     type: 'kickoff',
     team: 'A',
-    title: 'Apita o arbitro!',
-    message: `${next.teams.A.name} comeca atacando.`
+    title: 'Apita o árbitro!',
+    message: `${next.teams.A.name} começa atacando.`
   };
   next.updatedAt = Date.now();
   return { ok: true, state: next };
@@ -279,7 +330,7 @@ export function startMatch(state) {
 
 export function pauseGame(state, reason = 'Pausado pelo operador.') {
   if (!['running', 'paused'].includes(state.status)) {
-    return { ok: false, error: 'O aquecimento nao esta em andamento.', state };
+    return { ok: false, error: 'O aquecimento não está em andamento.', state };
   }
 
   const next = clone(state);
@@ -314,7 +365,7 @@ export function pauseForRecovery(state) {
 
 export function resumeGame(state) {
   if (state.status !== 'paused') {
-    return { ok: false, error: 'O aquecimento nao esta pausado.', state };
+    return { ok: false, error: 'O aquecimento não está pausado.', state };
   }
 
   const next = clone(state);
@@ -338,7 +389,7 @@ export function adjustScore(state, score) {
   const scoreB = Number(score?.B);
 
   if (!Number.isInteger(scoreA) || !Number.isInteger(scoreB) || scoreA < 0 || scoreB < 0) {
-    return { ok: false, error: 'Placar invalido.', state };
+    return { ok: false, error: 'Placar inválido.', state };
   }
 
   next.score = { A: scoreA, B: scoreB };
@@ -347,6 +398,69 @@ export function adjustScore(state, score) {
     title: 'Placar corrigido',
     message: `Placar ajustado para ${scoreA} x ${scoreB}.`
   };
+  next.updatedAt = Date.now();
+  return { ok: true, state: next };
+}
+
+export function ensureFieldState(state) {
+  return normalizeFieldState(state?.field);
+}
+
+export function fieldMovePiece(state, payload = {}) {
+  const pieceId = String(payload.pieceId || '');
+
+  if (!FIELD_PIECES.includes(pieceId)) {
+    return { ok: false, error: 'Peça do campo inválida.', state };
+  }
+
+  const next = clone(state);
+  next.field = normalizeFieldState(next.field);
+  next.field.pieces[pieceId] = normalizePoint(payload.position, next.field.pieces[pieceId]);
+  next.updatedAt = Date.now();
+  return { ok: true, state: next };
+}
+
+export function fieldAdjustScore(state, payload = {}) {
+  const teamId = String(payload.teamId || '');
+  const score = Number(payload.score);
+
+  if (!['A', 'B'].includes(teamId)) {
+    return { ok: false, error: 'Equipe do campo inválida.', state };
+  }
+
+  if (!Number.isInteger(score) || score < 0) {
+    return { ok: false, error: 'Placar do campo inválido.', state };
+  }
+
+  const next = clone(state);
+  next.field = normalizeFieldState(next.field);
+  next.field.score[teamId] = score;
+  next.updatedAt = Date.now();
+  return { ok: true, state: next };
+}
+
+export function fieldRegisterGoal(state, payload = {}) {
+  const teamId = String(payload.teamId || '');
+
+  if (!['A', 'B'].includes(teamId)) {
+    return { ok: false, error: 'Equipe do gol inválida.', state };
+  }
+
+  const next = clone(state);
+  next.field = normalizeFieldState(next.field);
+  next.field.score[teamId] += 1;
+  next.field.lastGoal = {
+    team: teamId,
+    side: payload.side === 'left' ? 'left' : 'right',
+    at: Date.now()
+  };
+  next.updatedAt = Date.now();
+  return { ok: true, state: next };
+}
+
+export function fieldReset(state) {
+  const next = clone(state);
+  next.field = createInitialFieldState();
   next.updatedAt = Date.now();
   return { ok: true, state: next };
 }
@@ -386,15 +500,15 @@ export function emergencyRestore(state, payload = {}) {
 
 export function submitAnswer(state, payload = {}) {
   if (state.status !== 'running') {
-    return { ok: false, error: 'O aquecimento nao esta em andamento.', state };
+    return { ok: false, error: 'O aquecimento não está em andamento.', state };
   }
 
   if (!['attack', 'rebound'].includes(state.phase)) {
-    return { ok: false, error: 'Aguarde a proxima jogada.', state };
+    return { ok: false, error: 'Aguarde a próxima jogada.', state };
   }
 
   if (state.activeTeam !== payload.teamId) {
-    return { ok: false, error: 'Ainda nao e a vez da sua equipe.', state };
+    return { ok: false, error: 'Ainda não é a vez da sua equipe.', state };
   }
 
   if (!state.currentQuestion || state.currentQuestion.id !== payload.questionId) {
@@ -402,13 +516,13 @@ export function submitAnswer(state, payload = {}) {
   }
 
   if (state.answeredQuestionIds.includes(payload.questionId)) {
-    return { ok: false, error: 'Esta pergunta ja foi respondida.', state };
+    return { ok: false, error: 'Esta pergunta já foi respondida.', state };
   }
 
   const answer = answerFor(state, state.phase);
   const optionIndex = Number(payload.optionIndex);
   if (!Number.isInteger(optionIndex) || optionIndex < 0 || optionIndex >= answer.options.length) {
-    return { ok: false, error: 'Alternativa invalida.', state };
+    return { ok: false, error: 'Alternativa inválida.', state };
   }
 
   const next = clone(state);
@@ -437,7 +551,7 @@ export function submitAnswer(state, payload = {}) {
 
 export function finalizeReveal(state) {
   if (state.phase !== 'revealing' || !state.pendingAnswer) {
-    return { ok: false, error: 'Nao ha resposta em revelacao.', state };
+    return { ok: false, error: 'Não há resposta em revelação.', state };
   }
 
   const next = clone(state);
@@ -493,7 +607,7 @@ export function finalizeReveal(state) {
 
 export function handleTimeout(state) {
   if (state.status !== 'running') {
-    return { ok: false, error: 'O aquecimento nao esta em andamento.', state };
+    return { ok: false, error: 'O aquecimento não está em andamento.', state };
   }
 
   const next = clone(state);
@@ -509,7 +623,7 @@ export function handleTimeout(state) {
       type: 'timeout-defense',
       team: attackingTeam,
       title: 'Tempo esgotado!',
-      message: `${next.teams[attackingTeam].name} nao respondeu. Contra-ataque para ${next.teams[reboundTeam].name}.`
+      message: `${next.teams[attackingTeam].name} não respondeu. Contra-ataque para ${next.teams[reboundTeam].name}.`
     };
     addHistory(next, next.lastEvent);
   } else if (next.phase === 'rebound') {
@@ -517,10 +631,10 @@ export function handleTimeout(state) {
       type: 'timeout-double-defense',
       team: next.activeTeam,
       title: 'Tempo esgotado!',
-      message: `${next.teams[next.activeTeam].name} nao respondeu o contra-ataque. Rodada encerrada.`
+      message: `${next.teams[next.activeTeam].name} não respondeu o contra-ataque. Rodada encerrada.`
     });
   } else {
-    return { ok: false, error: 'Nao ha timer ativo para timeout.', state };
+    return { ok: false, error: 'Não há timer ativo para timeout.', state };
   }
 
   next.updatedAt = Date.now();

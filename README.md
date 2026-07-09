@@ -4,32 +4,32 @@ Aquecimento em tempo real para a Copa de Prompts do MPAC, com perguntas no forma
 
 ## Fluxo principal
 
-1. O operador abre a tela publica/admin do aquecimento.
+1. O operador abre a tela pública/admin do aquecimento.
 2. O operador edita os nomes das equipes.
-3. O sistema gera automaticamente um codigo para cada equipe.
-4. Cada equipe acessa a tela de equipe e entra com seu codigo.
-5. O aquecimento so pode iniciar quando as duas equipes estiverem prontas.
-6. A tela publica mostra campo, placar, pergunta, alternativas, tempo e resultado das jogadas.
+3. O sistema gera automaticamente um código para cada equipe.
+4. Cada equipe acessa a tela de equipe e entra com seu código.
+5. O aquecimento só pode iniciar quando as duas equipes estiverem prontas.
+6. A tela pública mostra campo, placar, pergunta, alternativas, tempo e resultado das jogadas.
 7. A tela de equipe mostra a pergunta ativa somente quando for a vez daquela equipe responder.
 
 ## Regras da partida
 
 - 10 rodadas no total.
 - 5 posses iniciais para cada equipe.
-- Alternancia fixa de posse inicial: A, B, A, B...
+- Alternância fixa de posse inicial: A, B, A, B...
 - Ataque: 45 segundos.
 - Contra-ataque: 20 segundos.
-- Apos confirmar resposta, publico e equipe veem a alternativa escolhida e aguardam 5 segundos.
+- Após confirmar resposta, público e equipe veem a alternativa escolhida e aguardam 5 segundos.
 - Depois dos 5 segundos, o sistema revela a alternativa correta e mostra gol, defesa ou fim da jogada.
 - Se o ataque errar ou estourar o tempo, a outra equipe recebe contra-ataque.
 - Se o contra-ataque errar ou estourar o tempo, a rodada termina.
 
 ## Telas
 
-- Publico/admin: `http://localhost:5173/`
+- Público/admin: `http://localhost:5173/`
 - Equipe: `http://localhost:5173/equipe`
 
-A tela publica/admin usa uma gaveta lateral para nomes, codigos, inicio, pausa, retomada e recuperacao.
+A tela pública/admin usa uma gaveta lateral para nomes, códigos, início, pausa, retomada e recuperação.
 
 ## Como rodar localmente
 
@@ -50,7 +50,7 @@ npm test
 npm run build
 ```
 
-## Recuperacao por snapshot
+## Recuperação por snapshot
 
 O servidor salva um snapshot local em:
 
@@ -58,7 +58,7 @@ O servidor salva um snapshot local em:
 server/game-snapshot.json
 ```
 
-Esse arquivo nao deve ser versionado. Se o servidor reiniciar com snapshot valido, o aquecimento volta pausado para o operador conferir e retomar.
+Esse arquivo não deve ser versionado. Se o servidor reiniciar com snapshot válido, o aquecimento volta pausado para o operador conferir e retomar.
 
 Na retomada normal, o operador pode corrigir o placar antes de continuar.
 
@@ -68,11 +68,11 @@ Se houver problema no snapshot, o operador pode usar o modo emergencial para aju
 
 ```text
 server/gameEngine.js       regras puras da partida
-server/snapshotStore.js    leitura, gravacao e validacao do snapshot
+server/snapshotStore.js    leitura, gravação e validação do snapshot
 server/index.js            Express, Socket.io e timers
 server/questions.js        perguntas e respostas corretas
-client/src/main.jsx        telas publica/admin e equipe
-client/src/styles.css      visual do telao e da cabine
+client/src/main.jsx        telas pública/admin e equipe
+client/src/styles.css      visual do telão e da cabine
 ```
 
 ## Personalizar perguntas
@@ -102,4 +102,4 @@ Cada rodada tem uma pergunta de ataque e uma pergunta de contra-ataque:
 }
 ```
 
-`correctIndex` comeca em 0.
+`correctIndex` começa em 0.

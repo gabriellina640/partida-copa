@@ -6,19 +6,19 @@ export const DEFAULT_SNAPSHOT_PATH = path.resolve(process.cwd(), 'server/game-sn
 
 export function validateSnapshot(snapshot, questions = []) {
   if (!snapshot || typeof snapshot !== 'object') {
-    return { ok: false, error: 'Snapshot vazio ou invalido.' };
+    return { ok: false, error: 'Snapshot vazio ou inválido.' };
   }
 
   if (snapshot.snapshotVersion !== SNAPSHOT_VERSION) {
-    return { ok: false, error: 'Versao de snapshot incompativel.' };
+    return { ok: false, error: 'Versão de snapshot incompatível.' };
   }
 
   if (!['setup', 'ready', 'running', 'paused', 'finished'].includes(snapshot.status)) {
-    return { ok: false, error: 'Status de partida invalido.' };
+    return { ok: false, error: 'Status de partida inválido.' };
   }
 
   if (!['setup', 'attack', 'rebound', 'revealing', 'between', 'paused', 'finished'].includes(snapshot.phase)) {
-    return { ok: false, error: 'Fase de partida invalida.' };
+    return { ok: false, error: 'Fase de partida inválida.' };
   }
 
   if (!snapshot.teams?.A || !snapshot.teams?.B) {
@@ -26,21 +26,21 @@ export function validateSnapshot(snapshot, questions = []) {
   }
 
   if (!snapshot.teams.A.code || !snapshot.teams.B.code) {
-    return { ok: false, error: 'Codigos das equipes ausentes.' };
+    return { ok: false, error: 'Códigos das equipes ausentes.' };
   }
 
   if (!snapshot.score || !Number.isInteger(snapshot.score.A) || !Number.isInteger(snapshot.score.B)) {
-    return { ok: false, error: 'Placar invalido.' };
+    return { ok: false, error: 'Placar inválido.' };
   }
 
   if (!Number.isInteger(snapshot.roundIndex) || snapshot.roundIndex < 0 || snapshot.roundIndex >= questions.length) {
     if (snapshot.status !== 'finished') {
-      return { ok: false, error: 'Rodada atual invalida.' };
+      return { ok: false, error: 'Rodada atual inválida.' };
     }
   }
 
   if (!Array.isArray(snapshot.history) || !Array.isArray(snapshot.answeredQuestionIds)) {
-    return { ok: false, error: 'Historico ou respostas invalidos.' };
+    return { ok: false, error: 'Histórico ou respostas inválidos.' };
   }
 
   return { ok: true };
@@ -48,7 +48,7 @@ export function validateSnapshot(snapshot, questions = []) {
 
 export function loadSnapshot(filePath = DEFAULT_SNAPSHOT_PATH, questions = []) {
   if (!fs.existsSync(filePath)) {
-    return { ok: false, missing: true, error: 'Snapshot nao encontrado.' };
+    return { ok: false, missing: true, error: 'Snapshot não encontrado.' };
   }
 
   try {

@@ -8,6 +8,11 @@ import {
   configureMatch,
   createInitialState,
   emergencyRestore,
+  ensureFieldState,
+  fieldAdjustScore,
+  fieldMovePiece,
+  fieldRegisterGoal,
+  fieldReset,
   joinTeamByCode,
   markTeamReady,
   pauseForRecovery,
@@ -43,6 +48,7 @@ function bootState() {
       questions: gameQuestions,
       maxRounds: gameQuestions.length
     };
+    restored.field = ensureFieldState(restored);
 
     if (restored.status === 'setup') {
       return restored;
@@ -60,7 +66,7 @@ function bootState() {
     };
     initial.lastEvent = {
       type: 'snapshot-invalid',
-      title: 'Snapshot invalido',
+      title: 'Snapshot inválido',
       message: loaded.error
     };
   }
@@ -81,7 +87,7 @@ function emitState() {
 function applyResult(result, callback, options = {}) {
   if (!result?.ok) {
     if (typeof callback === 'function') {
-      callback({ ok: false, error: result?.error || 'Operacao invalida.' });
+      callback({ ok: false, error: result?.error || 'Operação inválida.' });
     }
     return;
   }
@@ -155,6 +161,22 @@ io.on('connection', (socket) => {
 
   socket.on('answer:submit', (payload, callback) => {
     applyResult(submitAnswer(state, payload || {}), callback);
+  });
+
+  socket.on('field:move-piece', (payload, callback) => {
+    applyResult(fieldMovePiece(state, payload || {}), callback);
+  });
+
+  socket.on('field:adjust-score', (payload, callback) => {
+    applyResult(fieldAdjustScore(state, payload || {}), callback);
+  });
+
+  socket.on('field:goal', (payload, callback) => {
+    applyResult(fieldRegisterGoal(state, payload || {}), callback);
+  });
+
+  socket.on('field:reset', (_payload, callback) => {
+    applyResult(fieldReset(state), callback);
   });
 });
 

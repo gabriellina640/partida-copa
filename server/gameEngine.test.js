@@ -8,6 +8,9 @@ import {
   configureMatch,
   createInitialState,
   emergencyRestore,
+  fieldAdjustScore,
+  fieldMovePiece,
+  fieldRegisterGoal,
   finalizeReveal,
   joinTeamByCode,
   markTeamReady,
@@ -52,10 +55,41 @@ test('configures team names and generates entry codes', () => {
   assert.equal(state.teams.B.code, 'B222');
 });
 
+test('initializes synchronized free field state', () => {
+  const state = createConfiguredState();
+
+  assert.deepEqual(state.field.score, { A: 0, B: 0 });
+  assert.deepEqual(state.field.pieces.teamA, { x: 12, y: 36 });
+  assert.deepEqual(state.field.pieces.teamB, { x: 12, y: 64 });
+  assert.deepEqual(state.field.pieces.ball, { x: 88, y: 50 });
+});
+
+test('updates synchronized free field without changing match score', () => {
+  let state = createConfiguredState();
+
+  state = fieldMovePiece(state, {
+    pieceId: 'ball',
+    position: { x: 42, y: 51 }
+  }).state;
+  state = fieldAdjustScore(state, {
+    teamId: 'A',
+    score: 2
+  }).state;
+  state = fieldRegisterGoal(state, {
+    teamId: 'B',
+    side: 'left'
+  }).state;
+
+  assert.deepEqual(state.field.pieces.ball, { x: 42, y: 51 });
+  assert.deepEqual(state.field.score, { A: 2, B: 1 });
+  assert.deepEqual(state.score, { A: 0, B: 0 });
+  assert.equal(state.field.lastGoal.team, 'B');
+});
+
 test('uses updated match rules and question bank', () => {
   assert.equal(gameQuestions.length, 10);
   assert.equal(REBOUND_SECONDS, 20);
-  assert.equal(gameQuestions[0].category, 'Restricao');
+  assert.equal(gameQuestions[0].category, 'Restrição');
   assert.equal(gameQuestions[0].attack.correctIndex, 1);
   assert.equal(gameQuestions[6].attack.correctIndex, 2);
   assert.equal(gameQuestions[7].rebound.correctIndex, 1);
@@ -86,7 +120,7 @@ test('rejects starting a match that is already running', () => {
   const result = startMatch(state);
 
   assert.equal(result.ok, false);
-  assert.equal(result.error, 'O aquecimento so pode iniciar na preparacao.');
+  assert.equal(result.error, 'O aquecimento só pode iniciar na preparação.');
 });
 
 test('correct attack enters reveal and only scores after reveal finishes', () => {
